@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Marketplace</h1>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/register">Register</a>
+            <a href="/products">Products</a>
+            <a href="/add_product">Add Product</a>
+        </nav>
+    </header>
+    
+    <main>
+        <h2>Available Products</h2>
+        <!-- <div class="products">
+            {% for product in products %}
+            <div class="product">
+                <h3>{{ product.name }}</h3>
+                <p>{{ product.description }}</p>
+                <p>Price: ${{ product.price }}</p>
+            </div>
+            {% endfor %}
+        </div> -->
+    </main>
+</body>
+</html>
