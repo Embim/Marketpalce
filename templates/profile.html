@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>{{ user.username }}'s Profile</h1>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/products">Products</a>
+            <a href="/cart">Cart</a>
+            <a href="/logout">Logout</a>
+        </nav>
+    </header>
+    
+    <main>
+        <h2>Profile Information</h2>
+        <p>Username: {{ user.username }}</p>
+        <p>Email: {{ user.email }}</p>
+        <p>Joined: {{ user.created_at }}</p>
+
+        <h3>Your Orders</h3>
+        <!-- Здесь можно вывести список заказов пользователя, если это нужно -->
+        <ul>
+            {% for order in user.orders %}
+            <li>Order #{{ order.id }} - Total: ${{ order.total_price }} - Status: {{ order.status }}</li>
+            {% endfor %}
+        </ul>
+    </main>
+</body>
+</html>

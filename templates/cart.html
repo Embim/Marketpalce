@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Shopping Cart</h1>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/products">Products</a>
+            <a href="/register">Register</a>
+        </nav>
+    </header>
+    
+    <main>
+        <h2>Your Cart</h2>
+        <div class="cart">
+            {% if cart_items %}
+                <ul>
+                    {% for item in cart_items %}
+                    <li>
+                        <h3>{{ item.product.name }}</h3>
+                        <p>Price: ${{ item.product.price }}</p>
+                        <p>Quantity: {{ item.quantity }}</p>
+                        <form action="/remove_from_cart/{{ item.id }}" method="POST">
+                            <button type="submit">Remove</button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <p>Total: ${{ total_price }}</p>
+                <form action="/checkout" method="POST">
+                    <button type="submit">Checkout</button>
+                </form>
+            {% else %}
+                <p>Your cart is empty!</p>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>
