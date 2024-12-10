@@ -4,17 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Products</h1>
-    <ul>
-        {% for product in products %}
-        <li>
-            <h2>{{ product.name }}</h2>
-            <p>{{ product.description }}</p>
-            <p>Price: ${{ product.price }}</p>
-        </li>
-        {% endfor %}
-    </ul>
+    <header>
+        <h1>Marketplace</h1>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/products">Products</a>
+            <a href="/cart">Cart</a>
+            <a href="/logout">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <!-- Поисковая строка -->
+        <form method="GET" action="/products" class="search-bar">
+            <input type="text" name="search" placeholder="Search for products..." value="{{ request.args.get('search', '') }}">
+            <button type="submit">Search</button>
+        </form>
+
+        <div class="products-page">
+            <!-- Боковая панель -->
+            <aside class="filters">
+                <h3>Filters</h3>
+                <form method="GET" action="/products">
+                    <!-- Категории -->
+                    <h4>Categories</h4>
+                    <ul>
+                        {% for category in categories %}
+                        <li>
+                            <label>
+                                <input type="radio" name="category" value="{{ category }}" {% if request.args.get('category') == category %}checked{% endif %}>
+                                {{ category }}
+                            </label>
+                        </li>
+                        {% endfor %}
+                    </ul>
+
+                    <!-- Фильтр по стоимости -->
+                    <h4>Price</h4>
+                    <label for="min_price">Min:</label>
+                    <input type="number" name="min_price" step="0.01" value="{{ request.args.get('min_price', '') }}">
+                    <label for="max_price">Max:</label>
+                    <input type="number" name="max_price" step="0.01" value="{{ request.args.get('max_price', '') }}">
+
+                    <!-- Сортировка -->
+                    <h4>Sort By</h4>
+                    <select name="sort">
+                        <option value="popularity" {% if request.args.get('sort') == 'popularity' %}selected{% endif %}>Popularity</option>
+                        <option value="price_asc" {% if request.args.get('sort') == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_desc" {% if request.args.get('sort') == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+                    </select>
+
+                    <button type="submit">Apply</button>
+                </form>
+            </aside>
+
+            <!-- Сетка товаров -->
+            <section class="product-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <h3>{{ product.name }}</h3>
+                    <p>{{ product.description[:100] }}...</p>
+                    <p>Price: ${{ product.price }}</p>
+                    <button>Add to Cart</button>
+                </div>
+                {% endfor %}
+            </section>
+        </div>
+    </main>
 </body>
 </html>

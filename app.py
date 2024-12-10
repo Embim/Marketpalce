@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 from models import db, User, Product, Order, CartItem, add_user, check_user_credentials, get_all_products, add_to_cart, get_cart, checkout
 import bcrypt
-
+from sqlalchemy import create_engine, or_, asc, desc
 from flask import Flask, render_template, request, redirect, session, flash, url_for
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -123,16 +123,83 @@ def checkout_route():
     flash('Ваш заказ оформлен!', 'success')
     return redirect(url_for('profile'))
 
-@app.route('/products')
+@app.route('/products', methods=['GET', 'POST'])
 def products():
-    products = get_all_products()  # Получение всех продуктов из базы данных
-    return render_template('products.html', products=products)
+    session_db = Session()
+
+    # Получаем параметры запроса
+    search_query = request.args.get('search', '').strip()
+    category_filter = request.args.get('category', '').strip()
+    sort_by = request.args.get('sort', 'popularity')  # По умолчанию сортируем по популярности
+    min_price = request.args.get('min_price', type=float)
+    max_price = request.args.get('max_price', type=float)
+
+    # Начинаем с базового запроса
+    query = session_db.query(Product)
+
+    # Применяем поиск по названию
+    if search_query:
+        query = query.filter(Product.name.ilike(f'%{search_query}%'))
+
+    # Фильтр по категории
+    if category_filter:
+        query = query.filter(Product.category == category_filter)
+
+    # Фильтр по стоимости
+    if min_price is not None:
+        query = query.filter(Product.price >= min_price)
+    if max_price is not None:
+        query = query.filter(Product.price <= max_price)
+
+    # Сортировка
+    if sort_by == 'price_asc':
+        query = query.order_by(asc(Product.price))
+    elif sort_by == 'price_desc':
+        query = query.order_by(desc(Product.price))
+    elif sort_by == 'popularity':
+        query = query.order_by(desc(Product.created_at))  # Заменяем на популярность при наличии данных
+
+    # Выполняем запрос
+    products = query.all()
+
+    # Уникальные категории для фильтрации
+    categories = [c[0] for c in session_db.query(Product.category).distinct().all() if c[0]]
+
+    session_db.close()
+
+    return render_template('products.html', products=products, categories=categories)
 
 @app.route('/logout')
 def logout():
     session.pop('username', None)  # Удаляем имя пользователя из сессии
     flash('You have been logged out.', 'success')
     return redirect(url_for('login'))
+
+@app.route('/cart', methods=['GET', 'POST'])
+def cart():
+    session_db = Session()
+
+    # Проверяем, есть ли пользователь в сессии
+    username = session.get('username')
+    if not username:
+        flash("Please log in to view your cart.", "error")
+        return redirect('/login')
+
+    # Получаем пользователя из базы данных
+    user = session_db.query(User).filter_by(username=username).first()
+    if not user:
+        flash("User not found.", "error")
+        return redirect('/login')
+
+    # Получаем элементы корзины пользователя
+    cart_items = session_db.query(CartItem).filter_by(user_id=user.id).all()
+
+    # Рассчитываем общую сумму корзины
+    total_price = sum(item.product.price * item.quantity for item in cart_items)
+
+    session_db.close()
+
+    return render_template('cart.html', cart_items=cart_items, total_price=total_price)
 
 if __name__ == '__main__':
     app.run(debug=True)

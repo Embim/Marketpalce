@@ -34,6 +34,9 @@ class User(Base):
     # Relationship with orders
     orders = relationship('Order', backref='user', lazy=True)
 
+    # Relationship with cart items
+    cart_items = relationship('CartItem', back_populates='user')
+
 # Модель для продукта
 class Product(Base):
     __tablename__ = 'products'
@@ -45,7 +48,7 @@ class Product(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Связь с корзиной
-    cart_items = relationship('CartItem', backref='product', lazy=True)
+    cart_items = relationship('CartItem', back_populates='product')
 
 # Модель для заказа
 class Order(Base):
@@ -60,11 +63,17 @@ class Order(Base):
 # Модель для корзины
 class CartItem(Base):
     __tablename__ = 'cart_items'
+
     id = Column(Integer, primary_key=True)
     product_id = Column(Integer, ForeignKey('products.id'), nullable=False)
-    order_id = Column(Integer, ForeignKey('orders.id'), nullable=False)
-    quantity = Column(Integer, default=1)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    quantity = Column(Integer, default=1, nullable=False)
+
+    # Связь с таблицей продуктов
+    product = relationship("Product", back_populates="cart_items")
+
+    # Связь с таблицей пользователей
+    user = relationship("User", back_populates="cart_items")
 
 # Функции для работы с базой данных
 
@@ -100,39 +109,25 @@ def add_to_cart(user_id, product_id, quantity=1):
         session.close()
         return None
 
-    order = session.query(Order).filter_by(user_id=user.id, status='in_cart').first()
-
-    if not order:
-        order = Order(user_id=user.id, total_price=0, status='in_cart')
-        session.add(order)
-        session.commit()
-
     product = session.query(Product).filter_by(id=product_id).first()
     if not product:
         session.close()
         return None
 
-    cart_item = session.query(CartItem).filter_by(order_id=order.id, product_id=product.id).first()
-
+    cart_item = session.query(CartItem).filter_by(user_id=user_id, product_id=product_id).first()
     if cart_item:
         cart_item.quantity += quantity
     else:
-        cart_item = CartItem(product_id=product.id, order_id=order.id, quantity=quantity)
+        cart_item = CartItem(user_id=user_id, product_id=product_id, quantity=quantity)
         session.add(cart_item)
 
-    order.total_price += product.price * quantity
     session.commit()
     session.close()
 
 # Получение всех товаров в корзине
 def get_cart(user_id):
     session = Session()
-    order = session.query(Order).filter_by(user_id=user_id, status='in_cart').first()
-    if not order:
-        session.close()
-        return []
-
-    cart_items = session.query(CartItem).filter_by(order_id=order.id).all()
+    cart_items = session.query(CartItem).filter_by(user_id=user_id).all()
     session.close()
     return cart_items
 
