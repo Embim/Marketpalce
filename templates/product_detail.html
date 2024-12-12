@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header id="product-detailed-header">
+        <h1 id="product-detailed-title">{{ product.name }}</h1>
+        <nav id="product-detailed-nav">
+            <a href="/" id="home-link-detailed">Home</a>
+            <a href="/products" id="products-link-detailed">Products</a>
+            <a href="/cart" id="cart-link-detailed">Cart</a>
+            <a href="/logout" id="logout-link-detailed">Logout</a>
+        </nav>
+    </header>
+
+    <main id="product-detailed-main">
+        <div class="product-details" id="product-details-container">
+            <h2 id="product-name-{{ product.id }}">{{ product.name }}</h2>
+            <p id="product-description-{{ product.id }}"><strong>Description:</strong> {{ product.description }}</p>
+            <p id="product-price-{{ product.id }}"><strong>Price:</strong> ${{ product.price }}</p>
+            <p id="product-category-{{ product.id }}"><strong>Category:</strong> {{ product.category }}</p>
+            <form method="POST" action="{{ url_for('add_to_cart_route', product_id=product.id) }}" id="add-to-cart-form-{{ product.id }}">
+                <button type="submit" id="add-to-cart-button-{{ product.id }}">Add to Cart</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

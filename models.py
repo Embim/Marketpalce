@@ -28,7 +28,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(100), unique=True, nullable=False)
     email = Column(String(120), unique=True, nullable=False)
-    password = Column(String(200), nullable=False)
+    password = Column(String(200), nullable=False)  # Пароль сохраняется в открытом виде
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationship with orders
@@ -40,6 +40,7 @@ class User(Base):
 # Модель для продукта
 class Product(Base):
     __tablename__ = 'products'
+    
     id = Column(Integer, primary_key=True)
     name = Column(String(200), nullable=False)
     description = Column(String(500))
@@ -51,6 +52,7 @@ class Product(Base):
     cart_items = relationship('CartItem', back_populates='product')
 
 # Модель для заказа
+# Модель для заказа
 class Order(Base):
     __tablename__ = 'orders'
 
@@ -60,13 +62,19 @@ class Order(Base):
     status = Column(String(50), nullable=False, default="Pending")
     created_at = Column(DateTime, default=datetime.utcnow)
 
+    # Связь с корзинами
+    cart_items = relationship("CartItem", back_populates="order")
+
+
 # Модель для корзины
+
 class CartItem(Base):
     __tablename__ = 'cart_items'
 
     id = Column(Integer, primary_key=True)
     product_id = Column(Integer, ForeignKey('products.id'), nullable=False)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    order_id = Column(Integer, ForeignKey('orders.id'), nullable=False)  # Явно указываем внешний ключ
     quantity = Column(Integer, default=1, nullable=False)
 
     # Связь с таблицей продуктов
@@ -74,6 +82,11 @@ class CartItem(Base):
 
     # Связь с таблицей пользователей
     user = relationship("User", back_populates="cart_items")
+
+    # Связь с заказом
+    order = relationship("Order", back_populates="cart_items")  # Указываем, что это связь с заказом
+
+
 
 # Функции для работы с базой данных
 

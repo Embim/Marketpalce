@@ -7,44 +7,48 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <header>
-        <h1>Your Cart</h1>
-        <nav>
-            <a href="/">Home</a>
-            <a href="/products">Products</a>
-            <a href="/cart">Cart</a>
-            <a href="/logout">Logout</a>
+    <header id="cart-header">
+        <h1 id="cart-title">Your Cart</h1>
+        <nav id="cart-nav">
+            <a href="/" id="home-link">Home</a>
+            <a href="/products" id="products-link">Products</a>
+            <a href="/cart" id="cart-link">Cart</a>
+            <a href="/logout" id="logout-link">Logout</a>
         </nav>
     </header>
 
-    <main>
-        <h2>Items in Your Cart</h2>
-        <div class="cart-items">
+    <main id="cart-main">
+        <h2 id="cart-subtitle">Items in Your Cart</h2>
+        <div id="cart-items-container">
             {% if cart_items %}
-                <table>
+                <table id="cart-table">
                     <thead>
-                        <tr>
-                            <th>Product</th>
-                            <th>Quantity</th>
-                            <th>Price</th>
-                            <th>Total</th>
+                        <tr id="cart-table-header">
+                            <th id="product-header">Product</th>
+                            <th id="quantity-header">Quantity</th>
+                            <th id="price-header">Price</th>
+                            <th id="total-header">Total</th>
+                            <th id="actions-header">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for item in cart_items %}
-                        <tr>
-                            <td>{{ item.product.name }}</td>
-                            <td>{{ item.quantity }}</td>
-                            <td>${{ item.product.price }}</td>
-                            <td>${{ item.product.price * item.quantity }}</td>
+                        <tr id="cart-item-{{ item.id }}">
+                            <td id="product-name-{{ item.id }}">{{ item.product.name }}</td>
+                            <td id="product-quantity-{{ item.id }}">{{ item.quantity }}</td>
+                            <td id="product-price-{{ item.id }}">${{ item.product.price }}</td>
+                            <td id="product-total-{{ item.id }}">${{ item.product.price * item.quantity }}</td>
+                            <td id="product-actions-{{ item.id }}">
+                                <a href="{{ url_for('remove_from_cart', cart_item_id=item.id) }}" class="remove-button" id="remove-button-{{ item.id }}">Remove</a>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-                <h3>Total Price: ${{ total_price }}</h3>
-                <button>Checkout</button>
+                <h3 id="total-price">Total Price: ${{ total_price }}</h3>
+                <button id="checkout-button">Checkout</button>
             {% else %}
-                <p>Your cart is empty.</p>
+                <p id="empty-cart-message">Your cart is empty.</p>
             {% endif %}
         </div>
     </main>

@@ -7,34 +7,35 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <header>
-        <h1>Marketplace</h1>
-        <nav>
-            <a href="/">Home</a>
-            <a href="/products">Products</a>
-            <a href="/cart">Cart</a>
-            <a href="/logout">Logout</a>
+    <header id="products-header">
+        <h1 id="products-title">Marketplace</h1>
+        <nav id="products-nav">
+            <a href="/" id="home-link">Home</a>
+            <a href="/products" id="products-link">Products</a>
+            <a href="/cart" id="cart-link">Cart</a>
+            <a href="/logout" id="logout-link">Logout</a>
         </nav>
     </header>
-    <main>
+    
+    <main id="products-main">
         <!-- Поисковая строка -->
-        <form method="GET" action="/products" class="search-bar">
-            <input type="text" name="search" placeholder="Search for products..." value="{{ request.args.get('search', '') }}">
-            <button type="submit">Search</button>
+        <form method="GET" action="/products" class="search-bar" id="search-form">
+            <input type="text" name="search" placeholder="Search for products..." value="{{ request.args.get('search', '') }}" id="search-input">
+            <button type="submit" id="search-button">Search</button>
         </form>
 
-        <div class="products-page">
-            <!-- Боковая панель -->
-            <aside class="filters">
-                <h3>Filters</h3>
-                <form method="GET" action="/products">
+        <div id="products-page">
+            <!-- Боковая панель (фильтры) -->
+            <aside id="filters-container" class="filters">
+                <h3 id="filters-title">Filters</h3>
+                <form method="GET" action="/products" id="filters-form">
                     <!-- Категории -->
-                    <h4>Categories</h4>
-                    <ul>
+                    <h4 id="categories-title">Categories</h4>
+                    <ul id="categories-list">
                         {% for category in categories %}
-                        <li>
+                        <li class="category-item" id="category-{{ category }}">
                             <label>
-                                <input type="radio" name="category" value="{{ category }}" {% if request.args.get('category') == category %}checked{% endif %}>
+                                <input type="radio" name="category" value="{{ category }}" {% if request.args.get('category') == category %}checked{% endif %} id="category-radio-{{ category }}">
                                 {{ category }}
                             </label>
                         </li>
@@ -42,32 +43,35 @@
                     </ul>
 
                     <!-- Фильтр по стоимости -->
-                    <h4>Price</h4>
-                    <label for="min_price">Min:</label>
-                    <input type="number" name="min_price" step="0.01" value="{{ request.args.get('min_price', '') }}">
-                    <label for="max_price">Max:</label>
-                    <input type="number" name="max_price" step="0.01" value="{{ request.args.get('max_price', '') }}">
+                    <h4 id="price-title">Price</h4>
+                    <label for="min_price" id="min-price-label">Min:</label>
+                    <input type="number" name="min_price" step="0.01" value="{{ request.args.get('min_price', '') }}" id="min-price-input">
+                    <label for="max_price" id="max-price-label">Max:</label>
+                    <input type="number" name="max_price" step="0.01" value="{{ request.args.get('max_price', '') }}" id="max-price-input">
 
                     <!-- Сортировка -->
-                    <h4>Sort By</h4>
-                    <select name="sort">
+                    <h4 id="sort-title">Sort By</h4>
+                    <select name="sort" id="sort-select">
                         <option value="popularity" {% if request.args.get('sort') == 'popularity' %}selected{% endif %}>Popularity</option>
                         <option value="price_asc" {% if request.args.get('sort') == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
                         <option value="price_desc" {% if request.args.get('sort') == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
                     </select>
 
-                    <button type="submit">Apply</button>
+                    <button type="submit" id="apply-filters-button">Apply</button>
                 </form>
             </aside>
 
             <!-- Сетка товаров -->
-            <section class="product-grid">
+            <section id="product-grid" class="product-grid">
                 {% for product in products %}
-                <div class="product-card">
-                    <h3>{{ product.name }}</h3>
-                    <p>{{ product.description[:100] }}...</p>
-                    <p>Price: ${{ product.price }}</p>
-                    <button>Add to Cart</button>
+                <div class="product-card" id="product-card-{{ product.id }}">
+                    <h3 id="product-name-{{ product.id }}">{{ product.name }}</h3>
+                    <p id="product-description-{{ product.id }}">{{ product.description[:100] }}...</p>
+                    <p id="product-price-{{ product.id }}">Price: ${{ product.price }}</p>
+                    <!-- Ссылка для добавления товара в корзину -->
+                    <form method="POST" action="{{ url_for('add_to_cart_route', product_id=product.id) }}" id="add-to-cart-form-{{ product.id }}">
+                        <button type="submit" id="add-to-cart-button-{{ product.id }}">Add to Cart</button>
+                    </form>
                 </div>
                 {% endfor %}
             </section>
